@@ -30,7 +30,7 @@ public class LectureController {
     @PostMapping
     public ResponseEntity createLecture(@RequestBody @Valid LectureReqDto lectureReqDto, Errors errors) {
         if(errors.hasErrors()) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors);
         }
         Lecture lecture = modelMapper.map(lectureReqDto, Lecture.class);
 
