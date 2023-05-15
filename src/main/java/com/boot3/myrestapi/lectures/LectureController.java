@@ -32,13 +32,13 @@ public class LectureController {
     public ResponseEntity createLecture(@RequestBody @Valid LectureReqDto lectureReqDto, Errors errors) {
         //입력항목 검증
         if(errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
         
         //비지니스 로직에 따른 입력항목 검증
         this.lectureValidator.validate(lectureReqDto, errors);
         if(errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
         
         Lecture lecture = modelMapper.map(lectureReqDto, Lecture.class);
@@ -50,5 +50,9 @@ public class LectureController {
                 WebMvcLinkBuilder.linkTo(LectureController.class).slash(addLecture.getId());
         URI createUri = selfLinkBuilder.toUri();
         return ResponseEntity.created(createUri).body(addLecture);
+    }
+
+    private static ResponseEntity<Errors> badRequest(Errors errors) {
+        return ResponseEntity.badRequest().body(errors);
     }
 }
