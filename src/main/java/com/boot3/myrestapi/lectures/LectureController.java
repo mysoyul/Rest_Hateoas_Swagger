@@ -21,6 +21,7 @@ import java.net.URI;
 public class LectureController {
     private final LectureRepository lectureRepository;
     private final ModelMapper modelMapper;
+    private final LectureValidator lectureValidator;
 
     //Constructor Injection
 //    public LectureController(LectureRepository lectureRepository) {
@@ -29,9 +30,17 @@ public class LectureController {
 
     @PostMapping
     public ResponseEntity createLecture(@RequestBody @Valid LectureReqDto lectureReqDto, Errors errors) {
+        //입력항목 검증
         if(errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }
+        
+        //비지니스 로직에 따른 입력항목 검증
+        this.lectureValidator.validate(lectureReqDto, errors);
+        if(errors.hasErrors()) {
+            return ResponseEntity.badRequest().body(errors);
+        }
+        
         Lecture lecture = modelMapper.map(lectureReqDto, Lecture.class);
 
         Lecture addLecture = lectureRepository.save(lecture);

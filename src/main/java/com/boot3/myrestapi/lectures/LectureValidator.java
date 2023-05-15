@@ -17,7 +17,8 @@ public class LectureValidator {
 			//Global Error
 			errors.reject("wrongPrices", "Values for prices are wrong");
 		}
-		
+
+		//강의종료일자
 		LocalDateTime endLectureDateTime = lectureReqDto.getEndLectureDateTime();
 		if(endLectureDateTime.isBefore(lectureReqDto.getBeginLectureDateTime()) ||
 		   endLectureDateTime.isBefore(lectureReqDto.getCloseEnrollmentDateTime()) ||
