@@ -7,6 +7,7 @@ import org.springframework.hateoas.RepresentationModel;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 public class LectureResource extends RepresentationModel<LectureResource> {
+    @JsonUnwrapped
     private LectureResDto lectureResDto;
     public LectureResource(LectureResDto resDto) {
         this.lectureResDto = resDto;

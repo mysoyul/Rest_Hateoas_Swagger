@@ -58,8 +58,11 @@ public class LectureController {
         URI createUri = selfLinkBuilder.toUri();
 
         LectureResource lectureResource = new LectureResource(lectureResDto);
+        //"query-lectures": { "href": "http://localhost:8080/api/lectures"}
         lectureResource.add(linkTo(LectureController.class).withRel("query-lectures"));
+        //"self": { "href": "http://localhost:8080/api/lectures/1"}
         lectureResource.add(selfLinkBuilder.withSelfRel());
+        //"update-lecture": { "href": "http://localhost:8080/api/lectures/1"}
         lectureResource.add(selfLinkBuilder.withRel("update-lecture"));
 
         return ResponseEntity.created(createUri).body(lectureResource);
