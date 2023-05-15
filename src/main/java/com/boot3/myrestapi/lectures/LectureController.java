@@ -42,7 +42,8 @@ public class LectureController {
         }
         
         Lecture lecture = modelMapper.map(lectureReqDto, Lecture.class);
-
+        //free와 offline 필드값 수정하기
+        lecture.update();
         Lecture addLecture = lectureRepository.save(lecture);
 
         // http://localhost:8080/api/lectures/10
