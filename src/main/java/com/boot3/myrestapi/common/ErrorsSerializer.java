@@ -14,6 +14,8 @@ public class ErrorsSerializer extends JsonSerializer<Errors>{
 	@Override
 	public void serialize(Errors errors, JsonGenerator gen, SerializerProvider serializers) throws IOException {
 		gen.writeStartArray();
+        //Field Error 정보 출력
+        // forEach(Consumer<? super T> action) Consumer의 추상메서드 void accept(T t);
         errors.getFieldErrors().forEach(e -> {
             try {
                 gen.writeStartObject();
@@ -31,6 +33,7 @@ public class ErrorsSerializer extends JsonSerializer<Errors>{
             }
         });
 
+        //Global Error 정보 출력
         errors.getGlobalErrors().forEach(e -> {
             try {
                 gen.writeStartObject();
