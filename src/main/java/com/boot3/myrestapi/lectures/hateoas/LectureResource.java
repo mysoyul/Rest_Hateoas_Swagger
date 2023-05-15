@@ -1,5 +1,6 @@
 package com.boot3.myrestapi.lectures.hateoas;
 
+import com.boot3.myrestapi.lectures.LectureController;
 import com.boot3.myrestapi.lectures.dto.LectureResDto;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.springframework.hateoas.RepresentationModel;
@@ -11,6 +12,8 @@ public class LectureResource extends RepresentationModel<LectureResource> {
     private LectureResDto lectureResDto;
     public LectureResource(LectureResDto resDto) {
         this.lectureResDto = resDto;
+        //"self": { "href": "http://localhost:8080/api/lectures/1"}
+        add(linkTo(LectureController.class).slash(resDto.getId()).withSelfRel());
     }
     
     public LectureResDto getLectureResDto() {
