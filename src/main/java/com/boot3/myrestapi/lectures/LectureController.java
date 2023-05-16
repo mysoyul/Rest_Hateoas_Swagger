@@ -42,6 +42,7 @@ public class LectureController {
     public ResponseEntity updateLecture(@PathVariable Integer id,
                                         @RequestBody @Valid LectureReqDto lectureReqDto,
                                         Errors errors) throws Exception {
+
         Optional<Lecture> optionalLecture = lectureRepository.findById(id);
         if (optionalLecture.isEmpty()) {
             throw new BusinessException(id + " Lecture Not Found", HttpStatus.NOT_FOUND);
@@ -74,7 +75,6 @@ public class LectureController {
         Optional<Lecture> optionalLecture = this.lectureRepository.findById(id);
         if(optionalLecture.isEmpty()) {
             //return ResponseEntity.notFound().build(); //404
-            //return ResponseEntity.status(HttpStatus.NOT_FOUND).body(id + " Lecture Not Found");
             throw new BusinessException(id + " Lecture Not Found", HttpStatus.NOT_FOUND);
         }
         Lecture lecture = optionalLecture.get();
@@ -100,7 +100,8 @@ public class LectureController {
 
 
     @PostMapping
-    public ResponseEntity createLecture(@RequestBody @Valid LectureReqDto lectureReqDto, Errors errors) {
+    public ResponseEntity createLecture(@RequestBody @Valid LectureReqDto lectureReqDto,
+                                        Errors errors) throws Exception {
         //입력항목 검증
         if(errors.hasErrors()) {
             return badRequest(errors);
