@@ -42,9 +42,11 @@ public class LectureController {
 //    }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity updateLecture(@PathVariable Integer id,
                                         @RequestBody @Valid LectureReqDto lectureReqDto,
-                                        Errors errors) throws Exception {
+                                        Errors errors,
+                                        @CurrentUser UserInfo currentUser) throws Exception {
 
         Optional<Lecture> optionalLecture = lectureRepository.findById(id);
         if (optionalLecture.isEmpty()) {
@@ -61,6 +63,11 @@ public class LectureController {
         }
         //Optional객체에서 Lecture 객체를 꺼낸다
         Lecture existingLecture = optionalLecture.get();
+        //등록한 사용자만 수정할 권한이 있는지 체크한다.
+        if((existingLecture.getUserInfo() != null) &&
+                (!existingLecture.getUserInfo().equals(currentUser))) {
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
         //LectureReqDto 객체를 Lecture 로 값을 복사한다
         this.modelMapper.map(lectureReqDto, existingLecture);
         //DB에 update
@@ -68,6 +75,8 @@ public class LectureController {
         Lecture savedLecture = this.lectureRepository.save(existingLecture);
         //Lecture 를 LectureResDto로 변환
         LectureResDto lectureResDto = modelMapper.map(savedLecture, LectureResDto.class);
+        if(currentUser != null)
+            lectureResDto.setEmail(savedLecture.getUserInfo().getEmail());
         //LectureResDto를 LectureResouce로 Wrapping하기
         LectureResource lectureResource = new LectureResource(lectureResDto);
         return ResponseEntity.ok(lectureResource);
@@ -75,7 +84,8 @@ public class LectureController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity getLecture(@PathVariable Integer id) throws Exception {
+    public ResponseEntity getLecture(@PathVariable Integer id,
+                                     @CurrentUser UserInfo currentUser) throws Exception {
         Optional<Lecture> optionalLecture = this.lectureRepository.findById(id);
         if(optionalLecture.isEmpty()) {
             //return ResponseEntity.notFound().build(); //404
@@ -83,7 +93,14 @@ public class LectureController {
         }
         Lecture lecture = optionalLecture.get();
         LectureResDto lectureResDto = modelMapper.map(lecture, LectureResDto.class);
+        if(currentUser != null)
+            lectureResDto.setEmail(lecture.getUserInfo().getEmail());
+
         LectureResource lectureResource = new LectureResource(lectureResDto);
+        if((lecture.getUserInfo() != null) && (lecture.getUserInfo().equals(currentUser))) {
+            lectureResource.add(linkTo(LectureController.class)
+                    .slash(lecture.getId()).withRel("update-lecture"));
+        }
         return ResponseEntity.ok(lectureResource);
     }
 
@@ -102,6 +119,7 @@ public class LectureController {
         PagedModel<LectureResource> pagedModel =
                 assembler.toModel(lectureResDtoPage, lectureResDto -> new LectureResource(lectureResDto));
 
+        //if((lecture.getUserInfo() != null) && (lecture.getUserInfo().equals(currentUser))) {
         if(currentUser != null) {
             pagedModel =
                     assembler.toModel(lectureResDtoPage, lectureResDto -> {
@@ -117,7 +135,8 @@ public class LectureController {
     @PostMapping
     @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity createLecture(@RequestBody @Valid LectureReqDto lectureReqDto,
-                                        Errors errors) throws Exception {
+                                        Errors errors,
+                                        @CurrentUser UserInfo currentUser) throws Exception {
         //입력항목 검증
         if(errors.hasErrors()) {
             return badRequest(errors);
@@ -132,6 +151,7 @@ public class LectureController {
         Lecture lecture = modelMapper.map(lectureReqDto, Lecture.class);
         //free와 offline 필드값 수정하기
         lecture.update();
+        lecture.setUserInfo(currentUser);
         Lecture addLecture = lectureRepository.save(lecture);
         //Lecture를  LectureResDto로 매핑
         LectureResDto lectureResDto = modelMapper.map(addLecture, LectureResDto.class);
