@@ -112,20 +112,21 @@ public class LectureController {
         Page<Lecture> lecturePage = this.lectureRepository.findAll(pageable);
         //Page<Lecture> => Page<LectureResDto>
         Page<LectureResDto> lectureResDtoPage =
-                lecturePage.map(lecture -> modelMapper.map(lecture, LectureResDto.class));
+                lecturePage.map(lecture -> {
+                    LectureResDto lectureResDto = new LectureResDto();
+                    if(lecture.getUserInfo() != null){
+                        lectureResDto.setEmail(lecture.getUserInfo().getEmail());
+                    }
+                    modelMapper.map(lecture, lectureResDto);
+                    return lectureResDto;
+                });
         //Page<LectureResDto> => PagedModel<EntityModel<LectureResDto>>
         //PagedModel<EntityModel<LectureResDto>> pagedModel = assembler.toModel(lectureResDtoPage);
 
         PagedModel<LectureResource> pagedModel =
                 assembler.toModel(lectureResDtoPage, lectureResDto -> new LectureResource(lectureResDto));
 
-        //if((lecture.getUserInfo() != null) && (lecture.getUserInfo().equals(currentUser))) {
         if(currentUser != null) {
-            pagedModel =
-                    assembler.toModel(lectureResDtoPage, lectureResDto -> {
-                        lectureResDto.setEmail(currentUser.getEmail());
-                        return new LectureResource(lectureResDto);
-                    });
             pagedModel.add(linkTo(LectureController.class).withRel("create-lecture"));
         }
         return ResponseEntity.ok(pagedModel);
@@ -155,6 +156,7 @@ public class LectureController {
         Lecture addLecture = lectureRepository.save(lecture);
         //Lecture를  LectureResDto로 매핑
         LectureResDto lectureResDto = modelMapper.map(addLecture, LectureResDto.class);
+        lectureResDto.setEmail(addLecture.getUserInfo().getEmail());
 
         // http://localhost:8080/api/lectures/10
         WebMvcLinkBuilder selfLinkBuilder =
