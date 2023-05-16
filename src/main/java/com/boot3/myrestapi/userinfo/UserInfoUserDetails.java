@@ -13,7 +13,10 @@ public class UserInfoUserDetails implements UserDetails {
     private String password;
     private List<GrantedAuthority> authorities;
 
+    private UserInfo userInfo;
+
     public UserInfoUserDetails(UserInfo userInfo) {
+        this.userInfo = userInfo;
         email = userInfo.getEmail();
         password = userInfo.getPassword();
         //ROLE_ADMIN,ROLE_USER
@@ -21,6 +24,10 @@ public class UserInfoUserDetails implements UserDetails {
                 //.map(roleName -> new SimpleGrantedAuthority(roleName))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList()); //List<SimpleGrantedAuthority>
+    }
+
+    public UserInfo getUserInfo() {
+        return userInfo;
     }
 
     @Override
