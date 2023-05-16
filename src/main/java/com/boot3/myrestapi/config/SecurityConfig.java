@@ -3,8 +3,10 @@ package com.boot3.myrestapi.config;
 import com.boot3.myrestapi.userinfo.UserInfoUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,7 +26,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/users/welcome","/users/new").permitAll()
+                .requestMatchers("/users/welcome","/users/new","/users/login").permitAll()
                 .and()
                 .authorizeHttpRequests()
                 .requestMatchers("/api/lectures/**").authenticated()
@@ -50,6 +52,11 @@ public class SecurityConfig {
         return authenticationProvider;
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+            throws Exception {
+        return config.getAuthenticationManager();
+    }
 //    @Bean
 //    //authentication
 //    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
