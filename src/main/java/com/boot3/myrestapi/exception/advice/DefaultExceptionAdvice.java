@@ -36,13 +36,14 @@ public class DefaultExceptionAdvice {
         return new ResponseEntity<>(result, e.getHttpStatus());
     }
 
+    //숫자타입의 값에 문자열타입의 값을 입력으로 받았을때 발생하는 오류
     @ExceptionHandler(HttpMessageNotReadableException.class)
     protected ResponseEntity<Object> handleException(HttpMessageNotReadableException e) {
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("message", e.getMessage());
         result.put("httpStatus", HttpStatus.BAD_REQUEST.value());
 
-        return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceAccessException.class)
@@ -57,7 +58,6 @@ public class DefaultExceptionAdvice {
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handleException(Exception e) {
-        System.out.println(">>>>>> exception = " + e);
         Map<String, Object> result = new HashMap<String, Object>();
         ResponseEntity<Object> ret = null;
         

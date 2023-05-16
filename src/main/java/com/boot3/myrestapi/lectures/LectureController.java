@@ -1,6 +1,7 @@
 package com.boot3.myrestapi.lectures;
 
 import com.boot3.myrestapi.common.ErrorsResource;
+import com.boot3.myrestapi.exception.BusinessException;
 import com.boot3.myrestapi.lectures.dto.LectureReqDto;
 import com.boot3.myrestapi.lectures.dto.LectureResDto;
 import com.boot3.myrestapi.lectures.hateoas.LectureResource;
@@ -38,11 +39,12 @@ public class LectureController {
 //    }
 
     @GetMapping("/{id}")
-    public ResponseEntity getLecture(@PathVariable Integer id) {
+    public ResponseEntity getLecture(@PathVariable Integer id) throws Exception {
         Optional<Lecture> optionalLecture = this.lectureRepository.findById(id);
         if(optionalLecture.isEmpty()) {
             //return ResponseEntity.notFound().build(); //404
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(id + " Lecture Not Found");
+            //return ResponseEntity.status(HttpStatus.NOT_FOUND).body(id + " Lecture Not Found");
+            throw new BusinessException(id + " Lecture Not Found", HttpStatus.NOT_FOUND);
         }
         Lecture lecture = optionalLecture.get();
         LectureResDto lectureResDto = modelMapper.map(lecture, LectureResDto.class);
@@ -51,7 +53,8 @@ public class LectureController {
     }
 
     @GetMapping
-    public ResponseEntity queryLectures(Pageable pageable, PagedResourcesAssembler<LectureResDto> assembler) {
+    public ResponseEntity queryLectures(Pageable pageable,
+                                        PagedResourcesAssembler<LectureResDto> assembler) throws Exception {
         Page<Lecture> lecturePage = this.lectureRepository.findAll(pageable);
         //Page<Lecture> => Page<LectureResDto>
         Page<LectureResDto> lectureResDtoPage =
