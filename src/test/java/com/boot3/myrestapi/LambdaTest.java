@@ -52,6 +52,7 @@ public class LambdaTest {
                 .forEach(System.out::println);
         //2의 배수 합계
         int sum = integerList.stream()
+                .filter(val -> val % 2 == 0)
                 .mapToInt(Integer::intValue)//IntStream
                 .sum();
         System.out.println("sum = " + sum);
