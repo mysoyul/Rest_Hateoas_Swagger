@@ -59,11 +59,12 @@ public class JwtService {
     }
 
     private String createToken(Map<String, Object> claims, String userName) {
-        return Jwts.builder()
+        return Jwts.builder() //JwtBuilder
                 .setClaims(claims)
                 .setSubject(userName)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*30))
-                .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
+                .setExpiration(new Date(System.currentTimeMillis()+1000*60*30)) //0.5시간
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 }
