@@ -56,13 +56,17 @@ public class DefaultExceptionAdvice {
         return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    protected ResponseEntity<Object> handleException(AccessDeniedException e) {
-        Map<String, Object> result = new HashMap<String, Object>();
-        result.put("message", e.getMessage());
-        result.put("httpStatus", HttpStatus.FORBIDDEN);
+//    @ExceptionHandler(AccessDeniedException.class)
+//    protected ResponseEntity<Object> handleException(AccessDeniedException e) {
+//        Map<String, Object> result = new HashMap<String, Object>();
+//        result.put("message", e.getMessage());
+//        result.put("httpStatus", HttpStatus.FORBIDDEN);
+//        return new ResponseEntity<>(result, HttpStatus.FORBIDDEN);
+//    }
 
-        return new ResponseEntity<>(result, HttpStatus.FORBIDDEN);
+    @ExceptionHandler(value = org.springframework.security.access.AccessDeniedException.class)
+    public void accessDeniedExceptionHandler(Exception e) {
+        throw new org.springframework.security.access.AccessDeniedException(e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
