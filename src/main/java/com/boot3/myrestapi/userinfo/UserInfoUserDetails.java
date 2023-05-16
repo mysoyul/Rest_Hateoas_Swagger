@@ -8,18 +8,19 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
 public class UserInfoUserDetails implements UserDetails {
     private String email;
     private String password;
     private List<GrantedAuthority> authorities;
 
     public UserInfoUserDetails(UserInfo userInfo) {
-        email=userInfo.getEmail();
-        password=userInfo.getPassword();
-        authorities= Arrays.stream(userInfo.getRoles().split(","))
+        email = userInfo.getEmail();
+        password = userInfo.getPassword();
+        //ROLE_ADMIN,ROLE_USER
+        authorities = Arrays.stream(userInfo.getRoles().split(","))
+                //.map(roleName -> new SimpleGrantedAuthority(roleName))
                 .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()); //List<SimpleGrantedAuthority>
     }
 
     @Override
