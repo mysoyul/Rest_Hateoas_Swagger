@@ -38,6 +38,36 @@ public class LectureController {
 //        this.lectureRepository = lectureRepository;
 //    }
 
+    @PutMapping("/{id}")
+    public ResponseEntity updateLecture(@PathVariable Integer id,
+                                        @RequestBody @Valid LectureReqDto lectureReqDto,
+                                        Errors errors) throws Exception {
+        Optional<Lecture> optionalLecture = lectureRepository.findById(id);
+        if (optionalLecture.isEmpty()) {
+            throw new BusinessException(id + " Lecture Not Found", HttpStatus.NOT_FOUND);
+        }
+        //입력항목 검증
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+        //비지니스 로직에 따른 입력항목 검증
+        lectureValidator.validate(lectureReqDto, errors);
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+        //Optional객체에서 Lecture 객체를 꺼낸다
+        Lecture existingLecture = optionalLecture.get();
+        //LectureReqDto 객체를 Lecture 로 값을 복사한다
+        this.modelMapper.map(lectureReqDto, existingLecture);
+        //DB에 update
+        Lecture savedLecture = this.lectureRepository.save(existingLecture);
+        //Lecture 를 LectureResDto로 변환
+        LectureResDto lectureResDto = modelMapper.map(savedLecture, LectureResDto.class);
+        //LectureResDto를 LectureResouce로 Wrapping하기
+        LectureResource lectureResource = new LectureResource(lectureResDto);
+        return ResponseEntity.ok(lectureResource);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity getLecture(@PathVariable Integer id) throws Exception {
         Optional<Lecture> optionalLecture = this.lectureRepository.findById(id);
