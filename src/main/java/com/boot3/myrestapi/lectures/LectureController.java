@@ -5,6 +5,8 @@ import com.boot3.myrestapi.exception.BusinessException;
 import com.boot3.myrestapi.lectures.dto.LectureReqDto;
 import com.boot3.myrestapi.lectures.dto.LectureResDto;
 import com.boot3.myrestapi.lectures.hateoas.LectureResource;
+import com.boot3.myrestapi.userinfo.UserInfo;
+import com.boot3.myrestapi.userinfo.annotation.CurrentUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -88,7 +90,8 @@ public class LectureController {
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity queryLectures(Pageable pageable,
-                                        PagedResourcesAssembler<LectureResDto> assembler) throws Exception {
+                                        PagedResourcesAssembler<LectureResDto> assembler,
+                                        @CurrentUser UserInfo currentUser) throws Exception {
         Page<Lecture> lecturePage = this.lectureRepository.findAll(pageable);
         //Page<Lecture> => Page<LectureResDto>
         Page<LectureResDto> lectureResDtoPage =
@@ -98,11 +101,21 @@ public class LectureController {
 
         PagedModel<LectureResource> pagedModel =
                 assembler.toModel(lectureResDtoPage, lectureResDto -> new LectureResource(lectureResDto));
+
+        if(currentUser != null) {
+            pagedModel =
+                    assembler.toModel(lectureResDtoPage, lectureResDto -> {
+                        lectureResDto.setEmail(currentUser.getEmail());
+                        return new LectureResource(lectureResDto);
+                    });
+            pagedModel.add(linkTo(LectureController.class).withRel("create-lecture"));
+        }
         return ResponseEntity.ok(pagedModel);
     }
 
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity createLecture(@RequestBody @Valid LectureReqDto lectureReqDto,
                                         Errors errors) throws Exception {
         //입력항목 검증
