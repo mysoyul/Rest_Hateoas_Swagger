@@ -60,6 +60,7 @@ public class LectureController {
         //LectureReqDto 객체를 Lecture 로 값을 복사한다
         this.modelMapper.map(lectureReqDto, existingLecture);
         //DB에 update
+        existingLecture.update();
         Lecture savedLecture = this.lectureRepository.save(existingLecture);
         //Lecture 를 LectureResDto로 변환
         LectureResDto lectureResDto = modelMapper.map(savedLecture, LectureResDto.class);
